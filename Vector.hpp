@@ -295,19 +295,23 @@ namespace ft {
         typename ft::Enable_if<!ft::Is_integral<InputIterator>::value, void>::type
         assign(InputIterator first, InputIterator last) {
 
+            int             i = 0;
             pointer         buf = 0;
             difference_type range = last - first;
 
-            clear();
-            vdeallocate();
-            buf = _allocator.allocate(range);
-            _begin = _container = buf;
-            _end = _begin + range;
-            _size = range;
-
-            if (static_cast<size_type>(range) > _capacity)
-                _capacity = range;
-            std::copy(first, last, this->begin());
+            if (range > _capacity) {
+                clear();
+                vdeallocate();
+                buf = _allocator.allocate(range);
+                _begin = _container = buf;
+                _end_cap = _end = _begin + range;
+                _capacity = _size = range;
+            }
+            for (; i < range && i < _capacity; ++i, ++first) {
+                _container[i] = *first;
+            }
+            _size = i;
+            _end = _begin + i;
         }
 
         void assign(size_type n, const value_type& val) {
